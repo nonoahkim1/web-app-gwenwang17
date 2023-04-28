@@ -8,6 +8,8 @@ from bson.objectid import ObjectId
 import os
 import subprocess
 
+from bson.binary import Binary
+
 # instantiate the app
 app = Flask(__name__)
 
@@ -38,13 +40,60 @@ def home():
     return render_template('index.html')
 
 
+@app.route('/gallery')
+def gallery():
+    """
+    Route for the gallery page
+    """
+    return render_template('gallery.html')
+
+'''
+@app.route('/read/<mongoid>')
+def read(mongoid):
+    """
+    Route for displaying details of a specific recipe.
+    """
+    doc = db.recipeapp.find_one({"_id": ObjectId(mongoid)})
+    return render_template('read.html', doc=doc)
+'''
+'''
+@app.route('/read/<recipe_title>')
+def recipe_details(recipe_title):
+    """
+    Route for displaying the details of a single recipe based on its title
+    """
+    doc = db.recipeapp.find_one({"recipe title": recipe_title})
+
+    'if doc:'
+    return render_template('read.html', doc=doc)
+
+
+
+@app.route('/gallery/<recipe_title>')
+def recipe_details(recipe_title):
+    """
+    Route for displaying the details of a single recipe based on its title
+    """
+    doc = db.recipeapp.find_one({"recipe title": recipe_title})
+    return render_template('read.html', doc=doc)
+'''
+
+
+@app.route('/gallery/<recipe_title>')
+def recipe_details(recipe_title):
+    """
+    Route for redirecting to the details of a single recipe based on its title
+    """
+    return redirect(url_for('read', recipe_title=recipe_title))
+
+
 @app.route('/read')
 def read():
     """
     Route for GET requests to the read page.
     Displays some information for the user with links to other pages.
     """
-    docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
+    docs = db.recipeapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
     return render_template('read.html', docs=docs) # render the read template
 
 
@@ -58,22 +107,35 @@ def create():
 
 
 @app.route('/create', methods=['POST'])
-def create_post():
+def create_recipe():
     """
     Route for POST requests to the create page.
     Accepts the form submission data for a new document and saves the document to the database.
     """
-    name = request.form['fname']
-    message = request.form['fmessage']
+    title = request.form['recipe_title']
+    description = request.form['recipe_description']
+    ingredients = request.form['recipe_ingredients']
+    instructions = request.form['recipe_instructions']
+
+    image_file = request.files['dish_image']
+    image_name = image_file.filename
+    image_binary = Binary(image_file.read())
+
+    '''image_path = os.path.join('static', 'images', image_name)
+    image_file.save(image_path)'''
 
 
     # create a new document with the data the user entered
     doc = {
-        "name": name,
-        "message": message, 
+        "recipe_title": title,
+        "description": description, 
+        "ingredients": ingredients,
+        "instructions": instructions,
+        "dish_image": image_name,
+        "dish_image_binary": image_binary,
         "created_at": datetime.datetime.utcnow()
     }
-    db.exampleapp.insert_one(doc) # insert a new document
+    db.recipeapp.insert_one(doc) # insert a new document
 
     return redirect(url_for('read')) # tell the browser to make a request for the /read route
 
@@ -84,7 +146,7 @@ def edit(mongoid):
     Route for GET requests to the edit page.
     Displays a form users can fill out to edit an existing record.
     """
-    doc = db.exampleapp.find_one({"_id": ObjectId(mongoid)})
+    doc = db.recipeapp.find_one({"_id": ObjectId(mongoid)})
     return render_template('edit.html', mongoid=mongoid, doc=doc) # render the edit template
 
 
@@ -94,17 +156,42 @@ def edit_post(mongoid):
     Route for POST requests to the edit page.
     Accepts the form submission data for the specified document and updates the document in the database.
     """
-    name = request.form['fname']
-    message = request.form['fmessage']
+    title = request.form['recipe_title']
+    description = request.form['recipe_description']
+    ingredients = request.form['recipe_ingredients']
+    instructions = request.form['recipe_instructions']
+    '''
+    image_file = request.files['dish_image']
+    image_name = image_file.filename
+    image_path = os.path.join('static', 'images', image_name)
+    image_file.save(image_path)
+    '''
+
+    image_file = request.files.get('dish_image') # returns None if 'dish_image' is not in the request
+    if image_file:
+        image_name = image_file.filename
+        image_data = image_file.read()
+        image_binary = Binary(image_data)
+
+        '''image_path = os.path.join('static', 'images', image_name)
+        image_file.save(image_path)'''
+    else:
+        image_name = db.recipeapp.find_one({"_id": ObjectId(mongoid)})['dish_image'] # get the existing image name if no new image is uploaded
+        image_binary = db.recipeapp.find_one({"_id": ObjectId(mongoid)})['dish_image_binary']  # get the existing image binary data
+
 
     doc = {
         # "_id": ObjectId(mongoid), 
-        "name": name, 
-        "message": message, 
+        "recipe_title": title,
+        "description": description, 
+        "ingredients": ingredients,
+        "instructions": instructions,
+        "dish_image": image_name,
+        "dish_image_binary": image_binary,
         "created_at": datetime.datetime.utcnow()
     }
 
-    db.exampleapp.update_one(
+    db.recipeapp.update_one(
         {"_id": ObjectId(mongoid)}, # match criteria
         { "$set": doc }
     )
@@ -118,9 +205,10 @@ def delete(mongoid):
     Route for GET requests to the delete page.
     Deletes the specified record from the database, and then redirects the browser to the read page.
     """
-    db.exampleapp.delete_one({"_id": ObjectId(mongoid)})
+    db.recipeapp.delete_one({"_id": ObjectId(mongoid)})
     return redirect(url_for('read')) # tell the web browser to make a request for the /read route.
 
+'''
 @app.route('/webhook', methods=['POST'])
 def webhook():
     """
@@ -139,16 +227,16 @@ def webhook():
     response = make_response('output: {}'.format(pull_output), 200)
     response.mimetype = "text/plain"
     return response
-
+'''
 @app.errorhandler(Exception)
 def handle_error(e):
     """
     Output any errors - good for debugging.
     """
-    return render_template('error.html', error=e) # render the edit template
+    return render_template('error.html', error=e) # render the error template
 
 
 if __name__ == "__main__":
     #import logging
-    #logging.basicConfig(filename='/home/ak8257/error.log',level=logging.DEBUG)
+    #logging.basicConfig(filename='/home/akg451/error.log',level=logging.DEBUG)
     app.run(debug = True)

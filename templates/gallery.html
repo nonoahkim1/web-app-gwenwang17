@@ -1,0 +1,19 @@
+{% extends 'base.html' %} 
+{% block container %}
+
+<h2>Gallery of Images</h2>
+<body>
+  
+  <div class="gallery">
+    {% for doc in docs %}
+      <div class="image">
+        <a href="{{ url_for('read', mongoid=doc._id) }}">
+            <img src="{{ doc.dish_image }}" alt="{{ doc.recipe_title }}">
+            <h2>{{ doc.recipe_title }}</h2>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+  
+</body>
+{% endblock %}

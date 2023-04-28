@@ -2,10 +2,11 @@
 
 {% block container %}
 <h2>Welcome!</h2>
-<p>Welcome to the Flask app. This is the home page. Here are a few links to example pages you might find interesting.
+<p>Welcome to the Recipe Sharing App. On this app you can share your own recipes with the world and also discover new ones from the other users. This is the home page. Here are a couple of links to pages you might find interesting:
     <ul>
-        <li><a href="{{ url_for('read')}}">a page that displays information pulled from a MongoDB database collection</a></li>
-        <li><a href="{{ url_for('create')}}">a page with a form you can submit to create a new record in a MongoDB collection</a></li>
+        <li><a href="{{ url_for('read')}}">a page that displays all posted recipes</a></li>
+        <li><a href="{{ url_for('create')}}">a page with a form you can submit to create a new recipe</a></li>
+        <li><a href="{{ url_for('gallery')}}">a page that displays all posted images of the dishes</a></li>
     </ul>
 </p>
 {% endblock %}

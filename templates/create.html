@@ -1,12 +1,31 @@
 {% extends 'base.html' %} {% block container %}
-<h2>Create</h2>
-<p>Create a new record in the MongoDB database collection.</p>
-<form method="POST" action="{{ url_for('create_post') }}">
-  <p>Your name: <input type="text" id="fname" name="fname" /><br /></p>
+<h2>Create/Submit a Recipe</h2>
+<p>Create/Submit a new recipe for the world to see and recreate!</p>
+
+
+<form method="POST" action="{{ url_for('create_recipe') }}" enctype="multipart/form-data">
+
+  <p>Recipe Title: <input type="text" id="recipe_title" name="recipe_title" /><br /></p>
   <p>
-    Message:
-    <textarea type="text" id="fmessage" name="fmessage"></textarea>
+    Recipe Description:
+    <textarea type="text" id="recipe_description" name="recipe_description"></textarea>
   </p>
+
+  <p>
+    Recipe Ingredients:
+    <textarea type="text" id="recipe_ingredients" name="recipe_ingredients"></textarea>
+  </p>
+
+  <p>
+    Recipe Instructions:
+    <textarea type="text" id="recipe_instructions" name="recipe_instructions"></textarea>
+  </p>
+
+  <p>
+    Dish Image:
+    <input type="file" id="dish_image" name="dish_image" /><br />
+  </p>
+
   <p>
     <a href="{{ url_for('read')}}">Cancel</a>
     <input type="submit" name="post-btn" value="Post" />

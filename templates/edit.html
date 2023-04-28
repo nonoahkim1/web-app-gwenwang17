@@ -1,15 +1,31 @@
 {% extends 'base.html' %} {% block container %}
-<h2>Update</h2>
-<p>Edit a record in the MongoDB database collection.</p>
-<form method="POST" action="{{ url_for('edit_post', mongoid=mongoid) }}">
+<h2>Update/Edit Recipe</h2>
+<p>Edit and update a recipe in the MongoDB database collection.</p>
+<form method="POST" action="{{ url_for('edit_recipe', mongoid=mongoid) }}">
   <p>
-    Your name:
-    <input type="text" id="fname" name="fname" value="{{doc.name}}" /><br />
+    Recipe Title:
+    <input type="text" id="recipe_title" name="recipe_title" value="{{doc.title}}" /><br />
   </p>
   <p>
-    Message:
-    <textarea id="fmessage" name="fmessage">{{doc.message}}</textarea>
+    Recipe Description:
+    <textarea id="recipe_description" name="recipe_description">{{doc.description}}</textarea>
   </p>
+
+  <p>
+    Recipe Ingredients:
+    <textarea id="recipe_ingredients" name="recipe_ingredients">{{doc.ingredients}}</textarea>
+  </p>
+
+  <p>
+    Recipe Instructions:
+    <textarea id="recipe_instructions" name="recipe_instructions">{{doc.instructions}}</textarea>
+  </p>
+
+  <p>
+    Dish Image:
+    <input type="file" id="dish_image" name="dish_image" value="{{doc.image}}" /><br />
+  </p>
+
   <p>
     <a href="{{ url_for('read')}}">Cancel</a>
     <input type="submit" name="post-btn" value="Save" />
