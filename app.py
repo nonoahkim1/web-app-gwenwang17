@@ -118,7 +118,7 @@ def create_recipe():
     instructions = request.form['recipe_instructions']
 
     image_file = request.files['dish_image']
-    image_name = image_file.filename
+    image_name = image_file.filename + "hi"
     image_binary = Binary(image_file.read())
 
     '''image_path = os.path.join('static', 'images', image_name)
